@@ -6,7 +6,10 @@ const TaskRouter = Router();
 // Getting All Task Data
 TaskRouter.get("/", async (req, res) => {
   try {
-    const task = await TaskModel.find();
+    const { page } = req.query;
+    const limit = 6;
+    const skip = (page - 1) * limit;
+    const task = await TaskModel.find().skip(skip).limit(limit);
     res.send({ message: "Getting Task Data", task });
   } catch (err) {
     res.send("Something wrong in getting task data");
@@ -26,17 +29,11 @@ TaskRouter.get("/:id", async (req, res) => {
 // Create a Task
 TaskRouter.post("/create", async (req, res) => {
   try {
-    const { title, description, duedate, priority } = req.body;
-    const newTask = new TaskModel({
-      title,
-      description,
-      duedate,
-      priority,
-    });
-    await newTask.save();
-    res.send({ message: "Successfully Create a Task" });
-  } catch (err) {
-    res.send({ message: "Something Wrong in creating Data", err });
+    const task = new TaskModel({ ...req.body });
+    await task.save();
+    res.send({ msg: "New Task has been added", task: req.body });
+  } catch (error) {
+    res.status(500).send({ error: error.message });
   }
 });
 
