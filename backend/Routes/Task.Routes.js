@@ -70,6 +70,21 @@ TaskRouter.delete("/delete/:id", async (req, res) => {
   }
 });
 
+TaskRouter.put("/complete/:id", async (req, res) => {
+  try {
+    const task = await TaskModel.findById(req.params.id);
+    if (task) {
+      task.status = "completed";
+      const updatedTask = await task.save();
+      res.send(updatedTask);
+    } else {
+      res.status(404).send({ message: "Task not found" });
+    }
+  } catch (err) {
+    res.status(500).send({ message: err.message });
+  }
+});
+
 module.exports = {
   TaskRouter,
 };
